@@ -29,7 +29,7 @@ First create an API token in the Dead Man's Snitch dashboard.[^1]
 
 Copy this key and configure the DMS provider:
 
-```hcl-terraform
+```hcl
 provider "dmsnitch" {
   api_key = "${var.dms_key}"
 }
@@ -39,7 +39,7 @@ Optionally, this can be configured using the envvar `DMS_TOKEN` to avoid storing
 
 Then you can create and manage your DMS snitches like so:
 
-```hcl-terraform
+```hcl
 resource "dmsnitch_snitch" "mysnitch" {
   name = "My Important Service"
   notes = "Description or other notes about this snitch."
@@ -52,7 +52,7 @@ resource "dmsnitch_snitch" "mysnitch" {
 
 You then might use this resource to perform database backup event check-ins with another provider, such as AWS RDS events.
 
-```hcl-terraform
+```hcl
 resource "aws_sns_topic" "backup_event" {
   name = "db-backup-events"
 }

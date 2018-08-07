@@ -51,6 +51,7 @@ func resourceSnitch() *schema.Resource {
 			"notes": {
 				Type:     schema.TypeString,
 				Optional: true,
+				Default:  "Managed by Terraform",
 			},
 
 			"type": {

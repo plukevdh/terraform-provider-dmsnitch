@@ -11,7 +11,6 @@ import (
 
 type Snitch struct {
 	Token    string   `json:"token,omitempty"`
-	Href     string   `json:"href,omitempty"`
 	Url      string   `json:"check_in_url,omitempty"`
 	Name     string   `json:"name,omitempty"`
 	Status   string   `json:"status,omitempty"`
@@ -77,11 +76,6 @@ func resourceSnitch() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-
-			"href": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -95,7 +89,6 @@ func newSnitchFromResource(d *schema.ResourceData) *Snitch {
 
 	return &Snitch{
 		Name:     d.Get("name").(string),
-		Href:     d.Get("href").(string),
 		Token:    d.Get("token").(string),
 		Url:      d.Get("url").(string),
 		Status:   d.Get("status").(string),
@@ -167,7 +160,6 @@ func resourceSnitchRead(d *schema.ResourceData, m interface{}) error {
 		}
 
 		d.Set("name", snitch.Name)
-		d.Set("href", snitch.Href)
 		d.Set("token", snitch.Token)
 		d.Set("url", snitch.Url)
 		d.Set("status", snitch.Status)

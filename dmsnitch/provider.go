@@ -9,7 +9,7 @@ import (
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"api_key": &schema.Schema{
+			"api_key": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("DMS_TOKEN", nil),
@@ -19,10 +19,6 @@ func Provider() terraform.ResourceProvider {
 
 		ConfigureFunc: providerConfigure,
 
-		//DataSourcesMap: map[string]*schema.Resource{
-		//	"dmsnitch_snitch": resourceSnitch(),
-		//},
-
 		ResourcesMap: map[string]*schema.Resource{
 			"dmsnitch_snitch": resourceSnitch(),
 		},
@@ -31,7 +27,7 @@ func Provider() terraform.ResourceProvider {
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	client := &DMSnitchClient{
-		ApiKey:   d.Get("api_key").(string),
+		ApiKey:     d.Get("api_key").(string),
 		HTTPClient: &http.Client{},
 	}
 

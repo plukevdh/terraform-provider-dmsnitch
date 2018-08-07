@@ -1,36 +1,36 @@
 package dmsnitch
 
 import (
-	"fmt"
-	"net/http"
 	"bytes"
-	"log"
+	"encoding/json"
+	"fmt"
+	"go/types"
 	"io"
 	"io/ioutil"
-	"encoding/json"
-	"go/types"
+	"log"
+	"net/http"
 )
 
 // Code borrowed heavily from the Bitbucket provider.
 
 type Error struct {
 	Validations types.Array `json:"validations,omitempty"`
-	Message    string `json:"error,omitempty"`
-	Type       string `json:"type,omitempty"`
-	StatusCode int
-	Endpoint   string
+	Message     string      `json:"error,omitempty"`
+	Type        string      `json:"type,omitempty"`
+	StatusCode  int
+	Endpoint    string
 }
 
 func (e Error) Error() string {
-	return fmt.Sprintf("API Error: %d %s %s", e.StatusCode, e.Endpoint, e.Message)
+	return fmt.Sprintf("API Error: %d %s %s", e.StatusCode, BaseUrl+e.Endpoint, e.Message)
 }
 
 const (
-	BaseUrl string = "https://api.bitbucket.org/v1/"
+	BaseUrl string = "https://api.deadmanssnitch.com/v1/"
 )
 
 type DMSnitchClient struct {
-	ApiKey   string
+	ApiKey     string
 	HTTPClient *http.Client
 }
 
@@ -51,7 +51,7 @@ func (c *DMSnitchClient) Do(method, endpoint string, payload *bytes.Buffer) (*ht
 		return nil, err
 	}
 
-	req.SetBasicAuth(c.ApiKey, "")
+	req.SetBasicAuth(c.ApiKey, ":")
 	req.Header.Add("Content-Type", "application/json")
 	req.Close = true
 

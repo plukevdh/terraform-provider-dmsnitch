@@ -1,12 +1,12 @@
 package dmsnitch
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
+	"bytes"
 	"encoding/json"
 	"fmt"
-	"bytes"
+	"github.com/hashicorp/terraform/helper/schema"
 	"io/ioutil"
-		"net/http"
+	"log"
 )
 
 type Snitch struct {
@@ -27,54 +27,59 @@ func resourceSnitch() *schema.Resource {
 		Update: resourceSnitchUpdate,
 		Read:   resourceSnitchRead,
 		Delete: resourceSnitchDelete,
+		Importer: &schema.ResourceImporter{
+			State: schema.ImportStatePassthrough,
+		},
 
 		SchemaVersion: 1,
 
 		Schema: map[string]*schema.Schema{
-			"token": &schema.Schema{
-				Type: schema.TypeString,
+			"token": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"notes": &schema.Schema{
+			"notes": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
-			"alert_type": &schema.Schema{
+			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "basic",
 			},
 
-			"interval": &schema.Schema{
+			"interval": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "daily",
 			},
 
-			"tags": &schema.Schema{
-				Type:     schema.TypeList,
+			"tags": {
+				Type:     schema.TypeSet,
 				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
 			},
 
-			"url": &schema.Schema{
-				Type: schema.TypeString,
+			"url": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"href": &schema.Schema{
-				Type: schema.TypeString,
+			"href": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
 		},
@@ -82,46 +87,23 @@ func resourceSnitch() *schema.Resource {
 }
 
 func newSnitchFromResource(d *schema.ResourceData) *Snitch {
-	snitch := &Snitch{
+	tags := make([]string, 0, len(d.Get("tags").(*schema.Set).List()))
+
+	for _, item := range d.Get("tags").(*schema.Set).List() {
+		tags = append(tags, item.(string))
+	}
+
+	return &Snitch{
 		Name:     d.Get("name").(string),
 		Href:     d.Get("href").(string),
 		Token:    d.Get("token").(string),
-		Url:      d.Get("check_in_url").(string),
+		Url:      d.Get("url").(string),
 		Status:   d.Get("status").(string),
 		Interval: d.Get("interval").(string),
 		Type:     d.Get("type").(string),
 		Notes:    d.Get("notes").(string),
-		Tags:     d.Get("tags").([]string),
+		Tags:     tags,
 	}
-
-	return snitch
-}
-
-func newResourceFromApi(resp *http.Response, d *schema.ResourceData) error {
-	var snitch Snitch
-
-	body, readerr := ioutil.ReadAll(resp.Body)
-	if readerr != nil {
-		return readerr
-	}
-
-	decodeerr := json.Unmarshal(body, &snitch)
-	if decodeerr != nil {
-		return decodeerr
-	}
-	
-	d.SetId(snitch.Token)
-	d.Set("name", snitch.Name)
-	d.Set("href", snitch.Href)
-	d.Set("token", snitch.Token)
-	d.Set("url", snitch.Url)
-	d.Set("status", snitch.Status)
-	d.Set("interval", snitch.Interval)
-	d.Set("type", snitch.Type)
-	d.Set("notes", snitch.Notes)
-	d.Set("tags", snitch.Tags)
-	
-	return nil;
 }
 
 func resourceSnitchCreate(d *schema.ResourceData, m interface{}) error {
@@ -134,34 +116,65 @@ func resourceSnitchCreate(d *schema.ResourceData, m interface{}) error {
 		return err
 	}
 
-	body, err := client.Post("v1/snitches", bytes.NewBuffer(bytedata))
+	resp, err := client.Post("snitches", bytes.NewBuffer(bytedata))
 	if err != nil {
 		return err
 	}
 
-	if body.StatusCode == 201 {
-		buildErr := newResourceFromApi(body, d)
+	if resp.StatusCode == 200 {
+		body, readerr := ioutil.ReadAll(resp.Body)
 
-		if buildErr != nil {
-			return buildErr
+		if readerr != nil {
+			return readerr
 		}
+
+		decodeerr := json.Unmarshal(body, &snitch)
+
+		if decodeerr != nil {
+			return decodeerr
+		}
+
+		log.Printf("[DEBUG] ID received: %s", snitch.Token)
+		d.SetId(snitch.Token)
 	}
 
-	return nil
+	return resourceSnitchRead(d, m)
 }
 
 func resourceSnitchRead(d *schema.ResourceData, m interface{}) error {
-	id := d.Id()
-
 	client := m.(*DMSnitchClient)
-	resp, _ := client.Get(fmt.Sprintf("v1/snitches/%s", id))
+	resp, _ := client.Get(fmt.Sprintf("snitches/%s", d.Id()))
 
 	if resp.StatusCode == 200 {
-		buildErr := newResourceFromApi(resp, d)
+		var snitch Snitch
 
-		if buildErr != nil {
-			return buildErr
+		body, readerr := ioutil.ReadAll(resp.Body)
+
+		if readerr != nil {
+			return readerr
 		}
+
+		decodeerr := json.Unmarshal(body, &snitch)
+
+		if decodeerr != nil {
+			return decodeerr
+		}
+
+		tagList := make([]string, 0, len(snitch.Tags))
+
+		for _, event := range snitch.Tags {
+			tagList = append(tagList, event)
+		}
+
+		d.Set("name", snitch.Name)
+		d.Set("href", snitch.Href)
+		d.Set("token", snitch.Token)
+		d.Set("url", snitch.Url)
+		d.Set("status", snitch.Status)
+		d.Set("interval", snitch.Interval)
+		d.Set("type", snitch.Type)
+		d.Set("notes", snitch.Notes)
+		d.Set("tags", tagList)
 	}
 
 	return nil
@@ -169,34 +182,30 @@ func resourceSnitchRead(d *schema.ResourceData, m interface{}) error {
 
 func resourceSnitchUpdate(d *schema.ResourceData, m interface{}) error {
 	client := m.(*DMSnitchClient)
-	repository := newSnitchFromResource(d)
+	snitch := newSnitchFromResource(d)
 
 	var jsonBuffer []byte
 
 	jsonPayload := bytes.NewBuffer(jsonBuffer)
 	enc := json.NewEncoder(jsonPayload)
-	enc.Encode(repository)
+	enc.Encode(snitch)
 
 	id := d.Id()
 
-	resp, _ := client.Patch(fmt.Sprintf("v1/snitches/%s", id), jsonPayload)
+	_, err := client.Patch(fmt.Sprintf("snitches/%s", id), jsonPayload)
 
-	if resp.StatusCode == 200 {
-		buildErr := newResourceFromApi(resp, d)
-
-		if buildErr != nil {
-			return buildErr
-		}
+	if err != nil {
+		return err
 	}
 
-	return nil
+	return resourceSnitchRead(d, m)
 }
 
 func resourceSnitchDelete(d *schema.ResourceData, m interface{}) error {
 	id := d.Id()
 
 	client := m.(*DMSnitchClient)
-	_, err := client.Delete(fmt.Sprintf("v1/snitches/%s", id))
+	_, err := client.Delete(fmt.Sprintf("snitches/%s", id))
 
 	return err
 }

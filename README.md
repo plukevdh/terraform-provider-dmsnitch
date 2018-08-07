@@ -77,6 +77,13 @@ resource "aws_sns_topic_subscription" "backup_event" {
 }
 ```
 
+You can also import existing snitches using their token found in the snitch's page URL:
+
+`terraform import dmsnitch_snitch.mysnitch 5b025eecf3`
+
+![](http://img.plukevdh.me/1X2N462b0J3a/%255B5a117e75fd66875d1a7c61c65ceaaae3%255D_Image%2525202018-08-07%252520at%2525204.27.59%252520PM.png)
+
+                                     
 ### Fields
 
 | Field | Required | Values | Defaults |

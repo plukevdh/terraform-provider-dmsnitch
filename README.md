@@ -5,28 +5,12 @@
 - Terraform 0.10.x or higher
 - Go 1.8 or higher
 
-## Building The Provider
-
-Clone the provider source code
+## Setting up the provider
 
 ```sh
-$ mkdir -p $GOPATH/src/github.com/plukevdh; cd $GOPATH/src/github.com/plukevdh
-$ git clone https://github.com/plukevdh/terraform-provider-dmsnitch.git
-```
-
-Build the source into executable binary
-
-```sh
-$ cd $GOPATH/src/github.com/plukevdh/terraform-provider-dmsnitch
-$ go get
-$ go build
-```
-
-Move the resulting `terraform-provider-dmsnitch` executable to one of the [Plugin Locations](https://www.terraform.io/docs/extend/how-terraform-works.html#plugin-locations), i.e.:
-
-```sh
+$ go get -u github.com/plukevdh/terraform-provider-dmsnitch
 $ mkdir -p ~/.terraform.d/plugins
-$ mv terraform-provider-dmsnitch ~/.terraform.d/plugins
+$ mv ${GOPATH}/bin/terraform-provider-dmsnitch ~/.terraform.d/plugins
 ```
 
 ## Usage

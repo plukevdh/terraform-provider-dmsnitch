@@ -24,7 +24,7 @@ $ go build
 
 Move the resulting `terraform-provider-dmsnitch` executable to one of the [Plugin Locations](https://www.terraform.io/docs/extend/how-terraform-works.html#plugin-locations), i.e.:
 
-```
+```sh
 $ mkdir -p ~/.terraform.d/plugins
 $ mv terraform-provider-dmsnitch ~/.terraform.d/plugins
 ```

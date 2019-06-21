@@ -1,9 +1,19 @@
 # Terraform [Dead Man's Snitch](https://deadmanssnitch.com/) Provider
 
+## Note on Compatability
+
+This branch is meant to work against the latest version of Terraform. For previous versions, see below
+
+- 0.0.x: Terraform 0.11 and earlier
+- 0.1.x: Terraform 0.12 
+
 ## Requirements
 
-- Terraform 0.10.x or higher
-- Go 1.8 or higher
+- Terraform 0.12.x or higher
+- Go 1.11 or higher
+- Go module support
+
+Please note [the following details](https://www.terraform.io/docs/extend/terraform-0.12-compatibility.html) if you have built this plugin prior to Terraform 0.12. 
 
 ## Building The Provider
 

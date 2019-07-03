@@ -2,8 +2,10 @@
 
 ## Requirements
 
-- Terraform 0.10.x or higher
+- Terraform 0.10.x to 0.11.x
 - Go 1.8 or higher
+
+For 0.12+ compatability, please see the master branch or 0.1.x release branch
 
 ## Building The Provider
 

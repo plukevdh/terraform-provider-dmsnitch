@@ -1,2 +1,7 @@
 *.iml
 *.tf
+
+terraform-provider-dmsnitch-*
+*.paw
+
+dist/

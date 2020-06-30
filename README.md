@@ -1,11 +1,13 @@
 # Terraform [Dead Man's Snitch](https://deadmanssnitch.com/) Provider
 
+Now available via the [Terraform Registry](https://registry.terraform.io/providers/plukevdh/dmsnitch/latest)!
+
 ## Note on Compatability
 
 This branch is meant to work against the latest version of Terraform. For previous versions, see below
 
 - 0.0.x: Terraform 0.11 and earlier
-- 0.1.x: Terraform 0.12 
+- 0.1.x: Terraform 0.12+ 
 
 ## Requirements
 
@@ -25,7 +27,7 @@ $ mv ${GOPATH}/bin/terraform-provider-dmsnitch ~/.terraform.d/plugins
 
 ## Usage
 
-First create an API token in the Dead Man's Snitch dashboard.[^1]
+First create an API token in the Dead Man's Snitch dashboard. **Note**: Use of the DMS API requires [a paid plan](https://deadmanssnitch.com/plans).
 
 ![](http://img.plukevdh.me/0M2i1K2n2T1a/Image%2525202018-08-07%252520at%2525203.45.04%252520PM.png)
 
@@ -110,4 +112,3 @@ For additional details about these fields and their purposes, see the [API docum
 
 This codebase is based heavily off of the [Bitbucket Provider](https://github.com/terraform-providers/terraform-provider-bitbucket) codebase.
 
-[^1]: Use of the DMS API requires [a paid plan](https://deadmanssnitch.com/plans).

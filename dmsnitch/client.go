@@ -36,8 +36,8 @@ type DMSnitchClient struct {
 
 func (c *DMSnitchClient) Do(method, endpoint string, payload *bytes.Buffer) (*http.Response, error) {
 
-	api_endpoint := BaseUrl + endpoint
-	log.Printf("[DEBUG] Sending request to %s %s", method, api_endpoint)
+	apiEndpoint := BaseUrl + endpoint
+	log.Printf("[DEBUG] Sending request to %s %s", method, apiEndpoint)
 
 	var bodyreader io.Reader
 
@@ -46,7 +46,7 @@ func (c *DMSnitchClient) Do(method, endpoint string, payload *bytes.Buffer) (*ht
 		bodyreader = payload
 	}
 
-	req, err := http.NewRequest(method, api_endpoint, bodyreader)
+	req, err := http.NewRequest(method, apiEndpoint, bodyreader)
 	if err != nil {
 		return nil, err
 	}

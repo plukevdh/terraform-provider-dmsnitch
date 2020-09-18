@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
 	"io/ioutil"
 	"log"
+
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 type Snitch struct {
@@ -139,6 +140,10 @@ func resourceSnitchRead(d *schema.ResourceData, m interface{}) error {
 	client := m.(*DMSnitchClient)
 	resp, _ := client.Get(fmt.Sprintf("snitches/%s", d.Id()))
 
+	if resp.StatusCode == 404 {
+		d.SetId("")
+		return nil
+	}
 	if resp.StatusCode == 200 {
 		var snitch Snitch
 

@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
 	"io/ioutil"
 	"log"
+
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 type Snitch struct {

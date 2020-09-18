@@ -158,14 +158,30 @@ func resourceSnitchRead(d *schema.ResourceData, m interface{}) error {
 		tagList := make([]string, 0, len(snitch.Tags))
 		tagList = append(tagList, snitch.Tags...)
 
-		d.Set("name", snitch.Name)
-		d.Set("token", snitch.Token)
-		d.Set("url", snitch.Url)
-		d.Set("status", snitch.Status)
-		d.Set("interval", snitch.Interval)
-		d.Set("type", snitch.Type)
-		d.Set("notes", snitch.Notes)
-		d.Set("tags", tagList)
+		if err := d.Set("name", snitch.Name); err != nil {
+			return err
+		}
+		if err := d.Set("token", snitch.Token); err != nil {
+			return err
+		}
+		if err := d.Set("url", snitch.Url); err != nil {
+			return err
+		}
+		if err := d.Set("status", snitch.Status); err != nil {
+			return err
+		}
+		if err := d.Set("interval", snitch.Interval); err != nil {
+			return err
+		}
+		if err := d.Set("type", snitch.Type); err != nil {
+			return err
+		}
+		if err := d.Set("notes", snitch.Notes); err != nil {
+			return err
+		}
+		if err := d.Set("tags", tagList); err != nil {
+			return err
+		}
 	}
 
 	return nil
@@ -179,7 +195,9 @@ func resourceSnitchUpdate(d *schema.ResourceData, m interface{}) error {
 
 	jsonPayload := bytes.NewBuffer(jsonBuffer)
 	enc := json.NewEncoder(jsonPayload)
-	enc.Encode(snitch)
+	if err := enc.Encode(snitch); err != nil {
+		return err
+	}
 
 	id := d.Id()
 

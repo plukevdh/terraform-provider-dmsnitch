@@ -156,10 +156,7 @@ func resourceSnitchRead(d *schema.ResourceData, m interface{}) error {
 		}
 
 		tagList := make([]string, 0, len(snitch.Tags))
-
-		for _, event := range snitch.Tags {
-			tagList = append(tagList, event)
-		}
+		tagList = append(tagList, snitch.Tags...)
 
 		d.Set("name", snitch.Name)
 		d.Set("token", snitch.Token)

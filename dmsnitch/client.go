@@ -2,6 +2,7 @@ package dmsnitch
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
 	"go/types"
@@ -22,22 +23,21 @@ type Error struct {
 }
 
 func (e Error) Error() string {
-	return fmt.Sprintf("API Error: %d %s %s", e.StatusCode, BaseUrl+e.Endpoint, e.Message)
+	return fmt.Sprintf("API Error: %d %s %s", e.StatusCode, BaseURL+e.Endpoint, e.Message)
 }
 
 const (
-	BaseUrl string = "https://api.deadmanssnitch.com/v1/"
+	BaseURL string = "https://api.deadmanssnitch.com/v1/"
 )
 
-type DMSnitchClient struct {
-	ApiKey     string
+type Client struct {
+	APIKey     string
 	HTTPClient *http.Client
 }
 
-func (c *DMSnitchClient) Do(method, endpoint string, payload *bytes.Buffer) (*http.Response, error) {
-
-	api_endpoint := BaseUrl + endpoint
-	log.Printf("[DEBUG] Sending request to %s %s", method, api_endpoint)
+func (c *Client) Do(method, endpoint string, payload *bytes.Buffer) (*http.Response, error) {
+	apiEndpoint := BaseURL + endpoint
+	log.Printf("[DEBUG] Sending request to %s %s", method, apiEndpoint)
 
 	var bodyreader io.Reader
 
@@ -46,12 +46,13 @@ func (c *DMSnitchClient) Do(method, endpoint string, payload *bytes.Buffer) (*ht
 		bodyreader = payload
 	}
 
-	req, err := http.NewRequest(method, api_endpoint, bodyreader)
+	ctx := context.Background()
+	req, err := http.NewRequestWithContext(ctx, method, apiEndpoint, bodyreader)
 	if err != nil {
 		return nil, err
 	}
 
-	req.SetBasicAuth(c.ApiKey, ":")
+	req.SetBasicAuth(c.APIKey, ":")
 	req.Header.Add("Content-Type", "application/json")
 	req.Close = true
 
@@ -76,23 +77,22 @@ func (c *DMSnitchClient) Do(method, endpoint string, payload *bytes.Buffer) (*ht
 		}
 
 		return resp, error(apiError)
-
 	}
 	return resp, err
 }
 
-func (c *DMSnitchClient) Get(endpoint string) (*http.Response, error) {
+func (c *Client) Get(endpoint string) (*http.Response, error) {
 	return c.Do("GET", endpoint, nil)
 }
 
-func (c *DMSnitchClient) Post(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
+func (c *Client) Post(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
 	return c.Do("POST", endpoint, jsonpayload)
 }
 
-func (c *DMSnitchClient) Patch(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
+func (c *Client) Patch(endpoint string, jsonpayload *bytes.Buffer) (*http.Response, error) {
 	return c.Do("PATCH", endpoint, jsonpayload)
 }
 
-func (c *DMSnitchClient) Delete(endpoint string) (*http.Response, error) {
+func (c *Client) Delete(endpoint string) (*http.Response, error) {
 	return c.Do("DELETE", endpoint, nil)
 }

@@ -4,14 +4,16 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
 	"io/ioutil"
 	"log"
+	"net/http"
+
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 type Snitch struct {
 	Token    string   `json:"token,omitempty"`
-	Url      string   `json:"check_in_url,omitempty"`
+	URL      string   `json:"check_in_url,omitempty"`
 	Name     string   `json:"name,omitempty"`
 	Status   string   `json:"status,omitempty"`
 	Interval string   `json:"interval,omitempty"`
@@ -91,7 +93,7 @@ func newSnitchFromResource(d *schema.ResourceData) *Snitch {
 	return &Snitch{
 		Name:     d.Get("name").(string),
 		Token:    d.Get("token").(string),
-		Url:      d.Get("url").(string),
+		URL:      d.Get("url").(string),
 		Status:   d.Get("status").(string),
 		Interval: d.Get("interval").(string),
 		Type:     d.Get("type").(string),
@@ -101,21 +103,20 @@ func newSnitchFromResource(d *schema.ResourceData) *Snitch {
 }
 
 func resourceSnitchCreate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*DMSnitchClient)
+	client := m.(*Client)
 	snitch := newSnitchFromResource(d)
 
 	bytedata, err := json.Marshal(snitch)
-
 	if err != nil {
 		return err
 	}
 
-	resp, err := client.Post("snitches", bytes.NewBuffer(bytedata))
+	resp, err := client.Post("snitches", bytes.NewBuffer(bytedata)) //nolint:bodyclose
 	if err != nil {
 		return err
 	}
 
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == http.StatusOK {
 		body, readerr := ioutil.ReadAll(resp.Body)
 
 		if readerr != nil {
@@ -136,10 +137,10 @@ func resourceSnitchCreate(d *schema.ResourceData, m interface{}) error {
 }
 
 func resourceSnitchRead(d *schema.ResourceData, m interface{}) error {
-	client := m.(*DMSnitchClient)
-	resp, _ := client.Get(fmt.Sprintf("snitches/%s", d.Id()))
+	client := m.(*Client)
+	resp, _ := client.Get(fmt.Sprintf("snitches/%s", d.Id())) //nolint:bodyclose
 
-	if resp.StatusCode == 200 {
+	if resp.StatusCode == http.StatusOK { //nolint:nestif
 		var snitch Snitch
 
 		body, readerr := ioutil.ReadAll(resp.Body)
@@ -155,38 +156,51 @@ func resourceSnitchRead(d *schema.ResourceData, m interface{}) error {
 		}
 
 		tagList := make([]string, 0, len(snitch.Tags))
-
-		for _, event := range snitch.Tags {
-			tagList = append(tagList, event)
+		tagList = append(tagList, snitch.Tags...)
+		if err := d.Set("name", snitch.Name); err != nil {
+			return err
 		}
-
-		d.Set("name", snitch.Name)
-		d.Set("token", snitch.Token)
-		d.Set("url", snitch.Url)
-		d.Set("status", snitch.Status)
-		d.Set("interval", snitch.Interval)
-		d.Set("type", snitch.Type)
-		d.Set("notes", snitch.Notes)
-		d.Set("tags", tagList)
+		if err := d.Set("token", snitch.Token); err != nil {
+			return err
+		}
+		if err := d.Set("url", snitch.URL); err != nil {
+			return err
+		}
+		if err := d.Set("status", snitch.Status); err != nil {
+			return err
+		}
+		if err := d.Set("interval", snitch.Interval); err != nil {
+			return err
+		}
+		if err := d.Set("type", snitch.Type); err != nil {
+			return err
+		}
+		if err := d.Set("notes", snitch.Notes); err != nil {
+			return err
+		}
+		if err := d.Set("tags", tagList); err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
 func resourceSnitchUpdate(d *schema.ResourceData, m interface{}) error {
-	client := m.(*DMSnitchClient)
+	client := m.(*Client)
 	snitch := newSnitchFromResource(d)
 
 	var jsonBuffer []byte
 
 	jsonPayload := bytes.NewBuffer(jsonBuffer)
 	enc := json.NewEncoder(jsonPayload)
-	enc.Encode(snitch)
+	if err := enc.Encode(snitch); err != nil {
+		return err
+	}
 
 	id := d.Id()
 
-	_, err := client.Patch(fmt.Sprintf("snitches/%s", id), jsonPayload)
-
+	_, err := client.Patch(fmt.Sprintf("snitches/%s", id), jsonPayload) //nolint:bodyclose
 	if err != nil {
 		return err
 	}
@@ -197,8 +211,8 @@ func resourceSnitchUpdate(d *schema.ResourceData, m interface{}) error {
 func resourceSnitchDelete(d *schema.ResourceData, m interface{}) error {
 	id := d.Id()
 
-	client := m.(*DMSnitchClient)
-	_, err := client.Delete(fmt.Sprintf("snitches/%s", id))
+	client := m.(*Client)
+	_, err := client.Delete(fmt.Sprintf("snitches/%s", id)) //nolint:bodyclose
 
 	return err
 }

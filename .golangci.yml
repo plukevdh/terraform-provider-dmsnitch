@@ -1,0 +1,9 @@
+---
+linters:
+  enable-all: true
+  disable:
+    - wsl
+    - goerr113
+    - nlreturn
+    - lll
+    - godot

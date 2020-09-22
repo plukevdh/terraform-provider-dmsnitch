@@ -1,9 +1,10 @@
 package dmsnitch
 
 import (
+	"net/http"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	"net/http"
 )
 
 func Provider() terraform.ResourceProvider {
@@ -26,8 +27,8 @@ func Provider() terraform.ResourceProvider {
 }
 
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	client := &DMSnitchClient{
-		ApiKey:     d.Get("api_key").(string),
+	client := &Client{
+		APIKey:     d.Get("api_key").(string),
 		HTTPClient: &http.Client{},
 	}
 

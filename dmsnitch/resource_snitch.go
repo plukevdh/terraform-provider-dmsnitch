@@ -4,9 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
 	"io/ioutil"
 	"log"
+
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 type Snitch struct {
@@ -16,6 +17,7 @@ type Snitch struct {
 	Status   string   `json:"status,omitempty"`
 	Interval string   `json:"interval,omitempty"`
 	Type     string   `json:"alert_type,omitempty"`
+	Email    []string `json:"alert_email,omitempty"`
 	Notes    string   `json:"notes,omitempty"`
 	Tags     []string `json:"tags,omitempty"`
 }
@@ -60,6 +62,13 @@ func resourceSnitch() *schema.Resource {
 				Default:  "basic",
 			},
 
+			"email": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
+
 			"interval": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -82,6 +91,12 @@ func resourceSnitch() *schema.Resource {
 }
 
 func newSnitchFromResource(d *schema.ResourceData) *Snitch {
+	email := make([]string, 0, len(d.Get("alert_email").(*schema.Set).List()))
+
+	for _, item := range d.Get("alert_email").(*schema.Set).List() {
+		email = append(email, item.(string))
+	}
+
 	tags := make([]string, 0, len(d.Get("tags").(*schema.Set).List()))
 
 	for _, item := range d.Get("tags").(*schema.Set).List() {
@@ -95,6 +110,7 @@ func newSnitchFromResource(d *schema.ResourceData) *Snitch {
 		Status:   d.Get("status").(string),
 		Interval: d.Get("interval").(string),
 		Type:     d.Get("type").(string),
+		Email:    email,
 		Notes:    d.Get("notes").(string),
 		Tags:     tags,
 	}
@@ -154,6 +170,12 @@ func resourceSnitchRead(d *schema.ResourceData, m interface{}) error {
 			return decodeerr
 		}
 
+		emailList := make([]string, 0, len(snitch.Email))
+
+		for _, event := range snitch.Email {
+			emailList = append(emailList, event)
+		}
+
 		tagList := make([]string, 0, len(snitch.Tags))
 
 		for _, event := range snitch.Tags {
@@ -166,6 +188,7 @@ func resourceSnitchRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("status", snitch.Status)
 		d.Set("interval", snitch.Interval)
 		d.Set("type", snitch.Type)
+		d.Set("tags", emailList)
 		d.Set("notes", snitch.Notes)
 		d.Set("tags", tagList)
 	}

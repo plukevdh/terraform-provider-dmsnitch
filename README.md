@@ -50,6 +50,7 @@ resource "dmsnitch_snitch" "mysnitch" {
   
   interval = "daily" 
   type = "basic"
+  email = ["example@example.com", "support@example.com"]
   tags = ["one", "two"]
 }
 ```
@@ -96,6 +97,7 @@ You can also import existing snitches using their token found in the snitch's pa
 | `notes`| no | | `Managed by Terraform` | 
 | `interval` | yes | `15_minute`, `30_minute`, `hourly`, `daily`, `weekly`, `monthly` | `daily` |
 | `type` | yes; `smart` is only valid for `weekly` or `monthly` intervals  | `basic`, `smart` | `basic` |
+| `email` | no | an array of values |  
 | `tags` | no | an array of values | 
  
  ### Attributes
@@ -111,4 +113,3 @@ For additional details about these fields and their purposes, see the [API docum
 ## Acknowledgements
 
 This codebase is based heavily off of the [Bitbucket Provider](https://github.com/terraform-providers/terraform-provider-bitbucket) codebase.
-

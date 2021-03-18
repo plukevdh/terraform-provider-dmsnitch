@@ -50,7 +50,7 @@ resource "dmsnitch_snitch" "mysnitch" {
   
   interval = "daily" 
   type = "basic"
-  email = ["example@example.com", "support@example.com"]
+  alert_email = ["example@example.com", "support@example.com"]
   tags = ["one", "two"]
 }
 ```
@@ -96,8 +96,8 @@ You can also import existing snitches using their token found in the snitch's pa
 | `name` | yes |
 | `notes`| no | | `Managed by Terraform` | 
 | `interval` | yes | `15_minute`, `30_minute`, `hourly`, `daily`, `weekly`, `monthly` | `daily` |
-| `type` | yes; `smart` is only valid for `weekly` or `monthly` intervals  | `basic`, `smart` | `basic` |
-| `email` | no | an array of values |  
+| `alert_type` | yes; `smart` is only valid for `weekly` or `monthly` intervals  | `basic`, `smart` | `basic` |
+| `alert_email` | no | an array of values |  
 | `tags` | no | an array of values | 
  
  ### Attributes

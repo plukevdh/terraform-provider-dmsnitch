@@ -62,7 +62,7 @@ func resourceSnitch() *schema.Resource {
 				Default:  "basic",
 			},
 
-			"email": {
+			"alert_email": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},

@@ -2,7 +2,7 @@ package main
 
 import (
 	"github.com/hashicorp/terraform/plugin"
-	"github.com/plukevdh/terraform-provider-dmsnitch/dmsnitch"
+	"github.com/repaygithub/terraform-provider-dmsnitch/dmsnitch"
 )
 
 func main() {

@@ -1,26 +1,13 @@
-# Terraform [Dead Man's Snitch](https://deadmanssnitch.com/) Provider
-
-Now available via the [Terraform Registry](https://registry.terraform.io/providers/plukevdh/dmsnitch/latest)!
-
-## Note on Compatability
-
-This branch is meant to work against the latest version of Terraform. For previous versions, see below
-
-- 0.0.x: Terraform 0.11 and earlier
-- 0.1.x: Terraform 0.12+ 
-
 ## Requirements
 
-- Terraform 0.12.x or higher
+- Terraform 0.13.x or higher
 - Go 1.11 or higher
 - Go module support
-
-Please note [the following details](https://www.terraform.io/docs/extend/terraform-0.12-compatibility.html) if you have built this plugin prior to Terraform 0.12. 
 
 ## Setting up the provider
 
 ```sh
-$ go get -u github.com/plukevdh/terraform-provider-dmsnitch
+$ go get -u github.com/repaygithub/terraform-provider-dmsnitch
 $ mkdir -p ~/.terraform.d/plugins
 $ mv ${GOPATH}/bin/terraform-provider-dmsnitch ~/.terraform.d/plugins
 ```
@@ -28,8 +15,6 @@ $ mv ${GOPATH}/bin/terraform-provider-dmsnitch ~/.terraform.d/plugins
 ## Usage
 
 First create an API token in the Dead Man's Snitch dashboard. **Note**: Use of the DMS API requires [a paid plan](https://deadmanssnitch.com/plans).
-
-![](http://img.plukevdh.me/0M2i1K2n2T1a/Image%2525202018-08-07%252520at%2525203.45.04%252520PM.png)
 
 Copy this key and configure the DMS provider:
 
@@ -86,9 +71,6 @@ You can also import existing snitches using their token found in the snitch's pa
 
 `terraform import dmsnitch_snitch.mysnitch 5b025eecf3`
 
-![](http://img.plukevdh.me/1X2N462b0J3a/%255B5a117e75fd66875d1a7c61c65ceaaae3%255D_Image%2525202018-08-07%252520at%2525204.27.59%252520PM.png)
-
-                                     
 ### Fields
 
 | Field | Required | Values | Defaults |
@@ -96,7 +78,7 @@ You can also import existing snitches using their token found in the snitch's pa
 | `name` | yes |
 | `notes`| no | | `Managed by Terraform` | 
 | `interval` | yes | `15_minute`, `30_minute`, `hourly`, `daily`, `weekly`, `monthly` | `daily` |
-| `alert_type` | yes; `smart` is only valid for `weekly` or `monthly` intervals  | `basic`, `smart` | `basic` |
+| `type` | yes; `smart` is only valid for `weekly` or `monthly` intervals  | `basic`, `smart` | `basic` |
 | `alert_email` | no | an array of values |  
 | `tags` | no | an array of values | 
  

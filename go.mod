@@ -1,4 +1,4 @@
-module github.com/plukevdh/terraform-provider-dmsnitch
+module github.com/repaygithub/terraform-provider-dmsnitch
 
 go 1.12
 

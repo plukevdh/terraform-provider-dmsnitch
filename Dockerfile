@@ -1,4 +1,4 @@
-FROM golang:1.12
+FROM golang:1.18
 
 WORKDIR /go/src/terraform-provider-dmsnitch
 COPY . .

@@ -7,15 +7,15 @@ Now available via the [Terraform Registry](https://registry.terraform.io/provide
 This branch is meant to work against the latest version of Terraform. For previous versions, see below
 
 - 0.0.x: Terraform 0.11 and earlier
-- 0.1.x: Terraform 0.12+ 
+- 0.1.x: Terraform 0.12+
 
 ## Requirements
 
 - Terraform 0.12.x or higher
-- Go 1.11 or higher
+- Go 1.18 or higher
 - Go module support
 
-Please note [the following details](https://www.terraform.io/docs/extend/terraform-0.12-compatibility.html) if you have built this plugin prior to Terraform 0.12. 
+Please note [the following details](https://www.terraform.io/docs/extend/terraform-0.12-compatibility.html) if you have built this plugin prior to Terraform 0.12.
 
 ## Setting up the provider
 
@@ -35,7 +35,7 @@ Copy this key and configure the DMS provider:
 
 ```hcl
 provider "dmsnitch" {
-  api_key = "${var.dms_key}"
+  api_key = var.dms_key
 }
 ```
 
@@ -47,8 +47,8 @@ Then you can create and manage your DMS snitches like so:
 resource "dmsnitch_snitch" "mysnitch" {
   name = "My Important Service"
   notes = "Description or other notes about this snitch."
-  
-  interval = "daily" 
+
+  interval = "daily"
   type = "basic"
   tags = ["one", "two"]
 }
@@ -63,10 +63,10 @@ resource "aws_sns_topic" "backup_event" {
 
 resource "aws_db_event_subscription" "backup_event" {
   name      = "db-backup-events"
-  sns_topic = "${aws_sns_topic.sbackup_event.arn}"
+  sns_topic = aws_sns_topic.sbackup_event.arn
 
   source_type = "db-instance"
-  source_ids  = ["${aws_db_instance.db.id}"]
+  source_ids  = [aws_db_instance.db.id]
 
   event_categories = [
     "backup",
@@ -74,10 +74,10 @@ resource "aws_db_event_subscription" "backup_event" {
 }
 
 resource "aws_sns_topic_subscription" "backup_event" {
-  endpoint               = "${dmsnitch_snitch.mysnitch.url}"
+  endpoint               = dmsnitch_snitch.mysnitch.url
   protocol               = "https"
   endpoint_auto_confirms = true
-  topic_arn              = "${aws_sns_topic.backup_event.arn}"
+  topic_arn              = aws_sns_topic.backup_event.arn
 }
 ```
 
@@ -87,28 +87,26 @@ You can also import existing snitches using their token found in the snitch's pa
 
 ![](http://img.plukevdh.me/1X2N462b0J3a/%255B5a117e75fd66875d1a7c61c65ceaaae3%255D_Image%2525202018-08-07%252520at%2525204.27.59%252520PM.png)
 
-                                     
 ### Fields
 
-| Field | Required | Values | Defaults |
-|---|---|---|---|
-| `name` | yes |
-| `notes`| no | | `Managed by Terraform` | 
-| `interval` | yes | `15_minute`, `30_minute`, `hourly`, `daily`, `weekly`, `monthly` | `daily` |
-| `type` | yes; `smart` is only valid for `weekly` or `monthly` intervals  | `basic`, `smart` | `basic` |
-| `tags` | no | an array of values | 
- 
- ### Attributes
+| Field      | Required                                                       | Values                                                           | Defaults               |
+| ---------- | -------------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------- |
+| `name`     | yes                                                            |
+| `notes`    | no                                                             |                                                                  | `Managed by Terraform` |
+| `interval` | yes                                                            | `15_minute`, `30_minute`, `hourly`, `daily`, `weekly`, `monthly` | `daily`                |
+| `type`     | yes; `smart` is only valid for `weekly` or `monthly` intervals | `basic`, `smart`                                                 | `basic`                |
+| `tags`     | no                                                             | an array of values                                               |
 
-| Attribute | Description |
-|---|---|
-| `token`, `id` | The unique snitch ID. |
-| `url`| The snitch checkin URL (for performing the check-in ping). | 
-| `status` | Health status for the snitch. |
-  
-For additional details about these fields and their purposes, see the [API documentation](https://deadmanssnitch.com/docs/api/v1). 
+### Attributes
+
+| Attribute     | Description                                                |
+| ------------- | ---------------------------------------------------------- |
+| `token`, `id` | The unique snitch ID.                                      |
+| `url`         | The snitch checkin URL (for performing the check-in ping). |
+| `status`      | Health status for the snitch.                              |
+
+For additional details about these fields and their purposes, see the [API documentation](https://deadmanssnitch.com/docs/api/v1).
 
 ## Acknowledgements
 
 This codebase is based heavily off of the [Bitbucket Provider](https://github.com/terraform-providers/terraform-provider-bitbucket) codebase.
-

@@ -1,6 +1,6 @@
 *.iml
 *.tf
-
+.env
 terraform-provider-dmsnitch-*
 *.paw
 

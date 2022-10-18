@@ -51,6 +51,7 @@ resource "dmsnitch_snitch" "mysnitch" {
   interval = "daily"
   type = "basic"
   tags = ["one", "two"]
+  alert_email = ["alice@example.com", "bob@example.com"]
 }
 ```
 
@@ -89,13 +90,14 @@ You can also import existing snitches using their token found in the snitch's pa
 
 ### Fields
 
-| Field      | Required                                                       | Values                                                           | Defaults               |
-| ---------- | -------------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------- |
-| `name`     | yes                                                            |
-| `notes`    | no                                                             |                                                                  | `Managed by Terraform` |
-| `interval` | yes                                                            | `15_minute`, `30_minute`, `hourly`, `daily`, `weekly`, `monthly` | `daily`                |
-| `type`     | yes; `smart` is only valid for `weekly` or `monthly` intervals | `basic`, `smart`                                                 | `basic`                |
-| `tags`     | no                                                             | an array of values                                               |
+| Field         | Required                                                       | Values                                                           | Defaults               |
+| ------------- | -------------------------------------------------------------- | ---------------------------------------------------------------- | ---------------------- |
+| `name`        | yes                                                            |                                                                  |                        |
+| `notes`       | no                                                             |                                                                  | `Managed by Terraform` |
+| `interval`    | yes                                                            | `15_minute`, `30_minute`, `hourly`, `daily`, `weekly`, `monthly` | `daily`                |
+| `type`        | yes; `smart` is only valid for `weekly` or `monthly` intervals | `basic`, `smart`                                                 | `basic`                |
+| `tags`        | no                                                             | an array of values                                               |                        |
+| `alert_email` | no                                                             | an array of email addresses                                      |                        |
 
 ### Attributes
 

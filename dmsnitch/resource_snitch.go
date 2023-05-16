@@ -11,14 +11,15 @@ import (
 )
 
 type Snitch struct {
-	Token    string   `json:"token,omitempty"`
-	Url      string   `json:"check_in_url,omitempty"`
-	Name     string   `json:"name,omitempty"`
-	Status   string   `json:"status,omitempty"`
-	Interval string   `json:"interval,omitempty"`
-	Type     string   `json:"alert_type,omitempty"`
-	Notes    string   `json:"notes,omitempty"`
-	Tags     []string `json:"tags,omitempty"`
+	Token       string   `json:"token,omitempty"`
+	Url         string   `json:"check_in_url,omitempty"`
+	Name        string   `json:"name,omitempty"`
+	Status      string   `json:"status,omitempty"`
+	Interval    string   `json:"interval,omitempty"`
+	Type        string   `json:"alert_type,omitempty"`
+	Notes       string   `json:"notes,omitempty"`
+	Tags        []string `json:"tags,omitempty"`
+	AlertEmails []string `json:"alert_email,omitempty"`
 }
 
 func resourceSnitch() *schema.Resource {
@@ -78,6 +79,13 @@ func resourceSnitch() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+
+			"alert_email": {
+				Type:     schema.TypeSet,
+				Optional: true,
+				Elem:     &schema.Schema{Type: schema.TypeString},
+				Set:      schema.HashString,
+			},
 		},
 	}
 }
@@ -89,15 +97,22 @@ func newSnitchFromResource(d *schema.ResourceData) *Snitch {
 		tags = append(tags, item.(string))
 	}
 
+	alertEmails := make([]string, 0, len(d.Get("alert_email").(*schema.Set).List()))
+
+	for _, item := range d.Get("alert_email").(*schema.Set).List() {
+		alertEmails = append(alertEmails, item.(string))
+	}
+
 	return &Snitch{
-		Name:     d.Get("name").(string),
-		Token:    d.Get("token").(string),
-		Url:      d.Get("url").(string),
-		Status:   d.Get("status").(string),
-		Interval: d.Get("interval").(string),
-		Type:     d.Get("type").(string),
-		Notes:    d.Get("notes").(string),
-		Tags:     tags,
+		Name:        d.Get("name").(string),
+		Token:       d.Get("token").(string),
+		Url:         d.Get("url").(string),
+		Status:      d.Get("status").(string),
+		Interval:    d.Get("interval").(string),
+		Type:        d.Get("type").(string),
+		Notes:       d.Get("notes").(string),
+		Tags:        tags,
+		AlertEmails: alertEmails,
 	}
 }
 
@@ -161,6 +176,12 @@ func resourceSnitchRead(d *schema.ResourceData, m interface{}) error {
 			tagList = append(tagList, event)
 		}
 
+		emailList := make([]string, 0, len(snitch.AlertEmails))
+
+		for _, email := range snitch.AlertEmails {
+			emailList = append(emailList, email)
+		}
+
 		d.Set("name", snitch.Name)
 		d.Set("token", snitch.Token)
 		d.Set("url", snitch.Url)
@@ -169,6 +190,7 @@ func resourceSnitchRead(d *schema.ResourceData, m interface{}) error {
 		d.Set("type", snitch.Type)
 		d.Set("notes", snitch.Notes)
 		d.Set("tags", tagList)
+		d.Set("alert_email", emailList)
 	}
 
 	return nil
